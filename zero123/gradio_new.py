@@ -3,7 +3,7 @@ conda activate zero123
 cd stable-diffusion
 python gradio_new.py 0
 '''
-
+from pathlib import Path
 import diffusers  # 0.12.1
 import math
 import fire
@@ -398,6 +398,34 @@ def main_run(models, device, cam_vis, return_what,
         else:
             return (description, new_fig, show_in_im2, output_ims)
 
+def gradual_inference(models, device, cam_vis, return_what,
+                      x=0.0, y_start=0.0, z=0.0,
+                      raw_im=None, preprocess=True,
+                      scale=3.0, n_samples=4, ddim_steps=50, ddim_eta=1.0,
+                      precision='fp32', h=256, w=256):
+
+    angles = list(range(-10, -91, -10))
+    output_base_path = Path('./output')
+
+    for angle in angles:
+        description, new_fig, show_in_im2, output_ims = main_run(models, device, cam_vis, 'gen',
+                                       x=x, y=angle, z=z,
+                                       raw_im=raw_im, preprocess=preprocess,
+                                       scale=scale, n_samples=n_samples, ddim_steps=ddim_steps,
+                                       ddim_eta=ddim_eta, precision=precision, h=h, w=w)
+
+        output_dir = output_base_path / f"{angle + 90}"
+        output_dir.mkdir(parents=True, exist_ok=True)
+
+        for i, image in enumerate(output_ims):
+            image_path = output_dir / f'image_{i}.png'
+            image.save(image_path)
+
+        if len(output_ims) > 0:
+            raw_im = output_ims[0]
+
+    return (description, new_fig, show_in_im2, output_ims)
+
 
 def calc_cam_cone_pts_3d(polar_deg, azimuth_deg, radius_m, fov_deg):
     '''
@@ -467,7 +495,7 @@ def calc_cam_cone_pts_3d(polar_deg, azimuth_deg, radius_m, fov_deg):
 
 def run_demo(
         device_idx=_GPU_INDEX,
-        ckpt='105000.ckpt',
+        ckpt='165000.ckpt',
         config='configs/sd-objaverse-finetune-c_concat-256.yaml'):
 
     print('sys.argv:', sys.argv)
@@ -624,7 +652,14 @@ def run_demo(
                               image_block, preprocess_chk],
                       outputs=[desc_output, vis_output, preproc_output])
 
-        run_btn.click(fn=partial(main_run, models, device, cam_vis, 'gen'),
+        # run_btn.click(fn=partial(main_run, models, device, cam_vis, 'gen'),
+        #               inputs=[polar_slider, azimuth_slider, radius_slider,
+        #                       image_block, preprocess_chk,
+        #                       scale_slider, samples_slider, steps_slider],
+        #               outputs=[desc_output, vis_output, preproc_output, gen_output])
+        
+        # Gradual Inference
+        run_btn.click(fn=partial(gradual_inference, models, device, cam_vis, 'gen'),
                       inputs=[polar_slider, azimuth_slider, radius_slider,
                               image_block, preprocess_chk,
                               scale_slider, samples_slider, steps_slider],

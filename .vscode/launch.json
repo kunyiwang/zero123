@@ -1,0 +1,41 @@
+// {
+//     "version": "0.2.0",
+//     "configurations": [
+//         {
+//             "name": "Python: Debug Evaluator with zero123",
+//             "type": "debugpy",
+//             "request": "launch",
+//             "program": "/home/kunyi/projects/zero123/zero123/main.py",
+//             "args": [
+//                 "-t",
+//                 "--base", "configs/sd-objaverse-finetune-c_concat-256.yaml",
+//                 "--gpus", "0",
+//                 "--scale_lr", "False",
+//                 "--num_nodes", "1",
+//                 "--seed", "42",
+//                 "--check_val_every_n_epoch", "1",
+//                 "--finetune_from", "sd-image-conditioned-v2.ckpt"
+//             ],
+//             "console": "integratedTerminal",
+//             "cwd": "/home/kunyi/projects/zero123/zero123",
+//             "python": "/home/kunyi/anaconda3/envs/zero123/bin/python"
+//         }
+//     ]
+// }
+
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: Debug Evaluator with zero123",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "/home/kunyi/projects/zero123/zero123/gradual_infer.py",
+            "args": [
+            ],
+            "console": "integratedTerminal",
+            "cwd": "/home/kunyi/projects/zero123/zero123",
+            "python": "/home/kunyi/anaconda3/envs/zero123/bin/python"
+        }
+    ]
+}
